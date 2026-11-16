@@ -1,3 +1,4 @@
+from django.views.decorators.cache import never_cache
 from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -64,6 +65,7 @@ def logout_view(request):
 
 
 @login_required
+@never_cache
 def dashboard_redirect(request):
     if request.user.account_type == User.AccountType.GUARDIAN:
         return redirect("accounts:guardian_dashboard")
@@ -71,21 +73,25 @@ def dashboard_redirect(request):
 
 
 @role_required("GUARDIAN")
+@never_cache
 def guardian_dashboard(request):
     return render(request, "accounts/guardian_dashboard.html")
 
 
 @role_required("CAREGIVER")
+@never_cache
 def caregiver_dashboard(request):
     return render(request, "accounts/caregiver_dashboard.html")
 
 
 @login_required
+@never_cache
 def profile_view(request):
     return render(request, "accounts/profile.html", {"profile": request.user})
 
 
 @login_required
+@never_cache
 def profile_edit(request):
     form = ProfileForm(request.POST or None, instance=request.user)
     if request.method == "POST" and form.is_valid():

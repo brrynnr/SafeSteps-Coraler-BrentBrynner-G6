@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>My Profile</h2>
+<table class="table">
+  <tr><th>Full name</th><td>{{ profile.full_name }}</td></tr>
+  <tr><th>Email</th><td>{{ profile.email }}</td></tr>
+  <tr><th>Phone</th><td>{{ profile.phone|default:"Not set" }}</td></tr>
+  <tr><th>Account type</th><td>{{ profile.get_account_type_display }}</td></tr>
+  <tr><th>Member since</th><td>{{ profile.created_at|date:"M d, Y" }}</td></tr>
+</table>
+<a class="btn btn-primary" href="{% url 'accounts:profile_edit' %}">Edit profile</a>
+{% endblock %}
