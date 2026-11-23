@@ -3,7 +3,7 @@
 <h2>Guardian Dashboard</h2>
 <p>Welcome, {{ user.full_name }}. Manage your children's safety here.</p>
 <div class="row g-3">
-  <div class="col-6"><div class="card p-3"><h5>My Children</h5><small class="text-muted">Coming soon</small></div></div>
+  <div class="col-6"><a class="text-decoration-none" href="{% url 'safety:child_list' %}"><div class="card p-3"><h5>My Children</h5><small class="text-muted">Manage children, zones, caregivers</small></div></a></div>
   <div class="col-6"><div class="card p-3"><h5>Safety Zones</h5><small class="text-muted">Coming soon</small></div></div>
   <div class="col-6"><div class="card p-3"><h5>Alerts</h5><small class="text-muted">Coming soon</small></div></div>
   <div class="col-6"><div class="card p-3"><h5>Activity History</h5><small class="text-muted">Coming soon</small></div></div>
