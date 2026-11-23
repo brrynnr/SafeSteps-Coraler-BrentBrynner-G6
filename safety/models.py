@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-
 User = settings.AUTH_USER_MODEL
 
 
@@ -71,3 +70,32 @@ class SafetyZone(models.Model):
 
     def __str__(self):
         return f"{self.zone_name} ({self.child})"
+    
+class CheckinRecord(models.Model):
+    class EventType(models.TextChoices):
+        CHECK_IN = "CHECK_IN", "Check-in (arrived)"
+        CHECK_OUT = "CHECK_OUT", "Check-out (left)"
+
+    class ActivityType(models.TextChoices):
+        SCHOOL = "SCHOOL"
+        HOME = "HOME"
+        TUTORING = "TUTORING"
+        SPORTS = "SPORTS"
+        DAYCARE = "DAYCARE"
+        OTHER = "OTHER"
+
+    class Source(models.TextChoices):
+        GUARDIAN = "GUARDIAN"
+        CAREGIVER = "CAREGIVER"
+        CHILD_MODE = "CHILD_MODE"
+
+    child = models.ForeignKey(Child, on_delete=models.PROTECT, related_name="records")
+    zone = models.ForeignKey(SafetyZone, on_delete=models.PROTECT, related_name="records")
+    recorded_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name="records_made")
+    event_type = models.CharField(max_length=10, choices=EventType.choices)
+    activity_type = models.CharField(max_length=15, choices=ActivityType.choices)
+    source = models.CharField(max_length=10, choices=Source.choices)
+    recorded_at = models.DateTimeField(auto_now_add=True)  # set by the server (BR-17)
+
+    class Meta:
+        ordering = ["-recorded_at", "-pk"]
