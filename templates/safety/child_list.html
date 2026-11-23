@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+  <h2>My Children</h2>
+  <a class="btn btn-primary" href="{% url 'safety:child_create' %}">Add child</a>
+</div>
+<ul class="list-group mt-3">
+  {% for c in children %}
+  <li class="list-group-item d-flex justify-content-between">
+    <span>{{ c.first_name }} <small class="text-muted">born {{ c.birth_date }}</small></span>
+    <a href="{% url 'safety:child_detail' c.pk %}">Manage</a>
+  </li>
+  {% empty %}
+  <li class="list-group-item text-muted">No children yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

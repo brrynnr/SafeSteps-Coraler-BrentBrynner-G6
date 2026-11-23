@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ child.first_name }}</h2>
+<p>Born {{ child.birth_date }}{% if child.notes %} · {{ child.notes }}{% endif %}</p>
+<a class="btn btn-sm btn-outline-primary" href="{% url 'safety:child_edit' child.pk %}">Edit</a>
+<a class="btn btn-sm btn-outline-danger" href="{% url 'safety:child_archive' child.pk %}">Archive</a>
+
+<h4 class="mt-4">Safety zones
+  <a class="btn btn-sm btn-primary" href="{% url 'safety:zone_create' child.pk %}">Add zone</a></h4>
+<ul class="list-group">
+  {% for z in zones %}
+  <li class="list-group-item d-flex justify-content-between">
+    <span>{{ z.zone_name }} ({{ z.get_zone_type_display }}, {{ z.radius_m }} m)
+      {% if not z.is_active %}<span class="badge bg-secondary">Inactive</span>{% endif %}</span>
+    <span>
+      <a href="{% url 'safety:zone_edit' child.pk z.pk %}">Edit</a>
+      {% if z.is_active %} · <a href="{% url 'safety:zone_delete' child.pk z.pk %}">Deactivate</a>{% endif %}
+    </span>
+  </li>
+  {% empty %}<li class="list-group-item text-muted">No zones yet.</li>{% endfor %}
+</ul>
+
+<h4 class="mt-4">Caregivers
+  <a class="btn btn-sm btn-primary" href="{% url 'safety:caregiver_add' child.pk %}">Assign</a></h4>
+<ul class="list-group">
+  {% for a in caregivers %}
+  <li class="list-group-item d-flex justify-content-between">
+    <span>{{ a.user.full_name }} ({{ a.user.email }})</span>
+    <a href="{% url 'safety:caregiver_revoke' child.pk a.pk %}">Revoke</a>
+  </li>
+  {% empty %}<li class="list-group-item text-muted">No caregivers assigned.</li>{% endfor %}
+</ul>
+{% endblock %}
