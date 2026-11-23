@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from .forms import ChildForm, CaregiverForm, ZoneForm, CheckinForm
 
 from accounts.decorators import role_required
 from .forms import ChildForm, CaregiverForm, ZoneForm
@@ -146,3 +148,37 @@ def zone_delete(request, child_id, zone_id):
         messages.success(request, "Zone deactivated.")
         return redirect("safety:child_detail", child.pk)
     return render(request, "safety/confirm.html", {"obj": zone, "action": "Deactivate"})
+
+def accessible_child(request, child_id):
+    """Child the logged-in user has an ACTIVE access record for (BR-06)."""
+    return get_object_or_404(Child, pk=child_id, status="ACTIVE",
+                             access__user=request.user, access__status="ACTIVE")
+
+
+@login_required
+def checkin_children(request):
+    children = Child.objects.filter(access__user=request.user, access__status="ACTIVE",
+                                    status="ACTIVE").distinct()
+    return render(request, "safety/checkin_children.html", {"children": children})
+
+
+@login_required
+def checkin_record(request, child_id):
+    child = accessible_child(request, child_id)
+    form = CheckinForm(request.POST or None, child=child)
+    if request.method == "POST" and form.is_valid():
+        rec = form.save(commit=False)
+        rec.child = child
+        rec.recorded_by = request.user
+        rec.source = "GUARDIAN" if request.user.account_type == "GUARDIAN" else "CAREGIVER"
+        rec.save()
+        messages.success(request, f"{child.first_name}: {rec.get_event_type_display()} recorded at {rec.zone.zone_name}.")
+        return redirect("safety:checkin_history", child.pk)
+    return render(request, "safety/form.html", {"form": form, "title": f"Check-in / Check-out: {child.first_name}"})
+
+
+@login_required
+def checkin_history(request, child_id):
+    child = accessible_child(request, child_id)
+    records = child.records.select_related("zone", "recorded_by")[:50]
+    return render(request, "safety/checkin_history.html", {"child": child, "records": records})

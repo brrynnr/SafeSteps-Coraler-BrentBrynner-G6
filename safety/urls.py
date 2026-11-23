@@ -13,4 +13,7 @@ urlpatterns = [
     path("children/<int:child_id>/zones/add/", views.zone_create, name="zone_create"),
     path("children/<int:child_id>/zones/<int:zone_id>/edit/", views.zone_edit, name="zone_edit"),
     path("children/<int:child_id>/zones/<int:zone_id>/deactivate/", views.zone_delete, name="zone_delete"),
+    path("checkin/", views.checkin_children, name="checkin_children"),
+    path("checkin/<int:child_id>/new/", views.checkin_record, name="checkin_record"),
+    path("checkin/<int:child_id>/history/", views.checkin_history, name="checkin_history"),
 ]
