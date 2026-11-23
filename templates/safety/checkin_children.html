@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Check-in / Check-out</h2>
+<ul class="list-group mt-3">
+  {% for c in children %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">
+    <span>{{ c.first_name }}</span>
+    <span>
+      <a class="btn btn-sm btn-primary" href="{% url 'safety:checkin_record' c.pk %}">Record</a>
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'safety:checkin_history' c.pk %}">History</a>
+    </span>
+  </li>
+  {% empty %}
+  <li class="list-group-item text-muted">No children assigned to you.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
