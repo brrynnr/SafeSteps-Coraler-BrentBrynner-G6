@@ -1,9 +1,6 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.core.exceptions import ValidationError
-from .models import Child, SafetyZone, CheckinRecord
-
 User = settings.AUTH_USER_MODEL
 
 
@@ -102,25 +99,3 @@ class CheckinRecord(models.Model):
 
     class Meta:
         ordering = ["-recorded_at", "-pk"]
-
-    class CheckinForm(forms.ModelForm):
-        class Meta:
-            model = CheckinRecord
-            fields = ("zone", "event_type", "activity_type")
-
-        def __init__(self, *args, child=None, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.child = child
-            self.fields["zone"].queryset = SafetyZone.objects.filter(child=child, is_active=True)  # BR-18
-
-        def clean(self):
-            data = super().clean()
-            zone, event = data.get("zone"), data.get("event_type")
-            if zone and event:
-                last = CheckinRecord.objects.filter(child=self.child, zone=zone).first()
-                is_open = last is not None and last.event_type == "CHECK_IN"
-                if event == "CHECK_IN" and is_open:
-                    raise ValidationError("This child is already checked in at this zone.")   # BR-19
-                if event == "CHECK_OUT" and not is_open:
-                    raise ValidationError("This child has no open check-in at this zone.")    # BR-19
-            return data
